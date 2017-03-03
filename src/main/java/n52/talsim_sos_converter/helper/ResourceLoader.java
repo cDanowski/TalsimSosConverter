@@ -52,8 +52,6 @@ public class ResourceLoader {
 		}
 		String outputAsString = stringBuilder.toString();
 
-		System.out.println(outputAsString);
-
 		bufferedReader.close();
 
 		return outputAsString;

@@ -92,6 +92,7 @@ public class TalsimSosConverter {
 			for (String insertObservationRequest : insertObservationRequests) {
 				int responseCode_insertObservation = SosRequestSender.sendInsertObservationRequestToSOS(SosURL,
 						insertObservationRequest);
+				
 			}		
 		}
 	}
@@ -100,8 +101,6 @@ public class TalsimSosConverter {
 			throws Exception, IOException {
 		String insertSensorRequest = SosRequestConstructor.createInsertSensorRequest(talsimDocument,
 				insertSensorRequestTemplate);
-
-		System.out.println(insertSensorRequest);
 
 		int responseCode_insertSensor = SosRequestSender.sendInsertSensorRequestToSOS(SosURL, insertSensorRequest);
 

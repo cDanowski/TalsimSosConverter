@@ -359,8 +359,6 @@ public class SosRequestConstructor {
 			String insertObservationRequest = SosRequestConstructor.createInsertObservationRequest(
 					currentTalsimEventNode, headerNode, timeZone, insertObservationTemplate_copy);
 
-			System.out.println(insertObservationRequest);
-
 			insertObservationRequests.add(insertObservationRequest);
 		}
 
