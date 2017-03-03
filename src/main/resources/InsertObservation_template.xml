@@ -28,7 +28,7 @@
             <om:featureOfInterest>
                 <sams:SF_SpatialSamplingFeature gml:id="ssf_test_feature_9">
                     <gml:identifier codeSpace="">%FEATURE_OF_INTEREST_IDENTIFIER_SAMPLING_FEATURE%</gml:identifier>
-                    <gml:name>52&deg;North</gml:name>
+                    <gml:name>52&#xb0;North</gml:name>
                     <sf:type xlink:href="http://www.opengis.net/def/samplingFeatureType/OGC-OM/2.0/SF_SamplingPoint"/>
                     <sf:sampledFeature xlink:href="%FEATURE_OF_INTEREST_IDENTIFIER_SAMPLED_FEATURE%"/>
                     <sams:shape>
