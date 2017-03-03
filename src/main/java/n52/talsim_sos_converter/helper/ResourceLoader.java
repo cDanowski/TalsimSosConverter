@@ -90,6 +90,8 @@ public class ResourceLoader {
 		properties_token_value.load(input_tokenPropertiesValueFile);
 
 		String tokenValue = properties_token_value.getProperty(Constants.TOKEN_PROPERTY_NAME);
+		
+		input_tokenPropertiesValueFile.close();
 
 		return tokenValue;
 
