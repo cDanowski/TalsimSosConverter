@@ -113,8 +113,8 @@ public class Constants {
 	/*
 	 * OFFERING
 	 */
-	public static final String OFFERING_IDENTIFIER_NAME = "Wasserdurchfluss";
-	public static final String OFFERING_IDENTIFIER_VALUE = "Wasserdurchfluss";
+	public static final String OFFERING_IDENTIFIER_NAME = "TalsimResult";
+	public static final String OFFERING_IDENTIFIER_VALUE = "TalsimResult";
 
 	/*
 	 * FEATURE OF INTEREST TODO FIXME replace with real value!
