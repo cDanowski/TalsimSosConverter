@@ -95,9 +95,29 @@
                     </sml:inputs>
                     <sml:outputs>
                         <sml:OutputList>
-                            <sml:output name="%OBSERVABLE_PROPERTY_OUTPUT_NAME%">
-                                <swe:Quantity definition="%OBSERVABLE_PROPERTY_OUTPUT_VALUE%">
-                                    <swe:uom code="%UOM_DEFINITION%"/>
+                            <sml:output name="%OBSERVABLE_PROPERTY_OUTPUT_NAME_1ZU%">
+                                <swe:Quantity definition="%OBSERVABLE_PROPERTY_OUTPUT_VALUE_1ZU%">
+                                    <swe:uom code="%UOM_DEFINITION_1ZU%"/>
+                                </swe:Quantity>
+                            </sml:output>
+                            <sml:output name="%OBSERVABLE_PROPERTY_OUTPUT_NAME_VOL%">
+                                <swe:Quantity definition="%OBSERVABLE_PROPERTY_OUTPUT_VALUE_VOL%">
+                                    <swe:uom code="%UOM_DEFINITION_VOL%"/>
+                                </swe:Quantity>
+                            </sml:output>
+                            <sml:output name="%OBSERVABLE_PROPERTY_OUTPUT_NAME_WSP%">
+                                <swe:Quantity definition="%OBSERVABLE_PROPERTY_OUTPUT_VALUE_WSP%">
+                                    <swe:uom code="%UOM_DEFINITION_WSP%"/>
+                                </swe:Quantity>
+                            </sml:output>
+                            <sml:output name="%OBSERVABLE_PROPERTY_OUTPUT_NAME_QA1%">
+                                <swe:Quantity definition="%OBSERVABLE_PROPERTY_OUTPUT_VALUE_QA1%">
+                                    <swe:uom code="%UOM_DEFINITION_QA1%"/>
+                                </swe:Quantity>
+                            </sml:output>
+                            <sml:output name="%OBSERVABLE_PROPERTY_OUTPUT_NAME_QH1%">
+                                <swe:Quantity definition="%OBSERVABLE_PROPERTY_OUTPUT_VALUE_QH1%">
+                                    <swe:uom code="%UOM_DEFINITION_QH1%"/>
                                 </swe:Quantity>
                             </sml:output>
                         </sml:OutputList>
@@ -106,9 +126,17 @@
             </sml:member>
         </sml:SensorML>
     </swes:procedureDescription>
-    <swes:observableProperty>%OBSERVABLE_PROPERTY_OUTPUT_VALUE%</swes:observableProperty>
+    <swes:observableProperty>%OBSERVABLE_PROPERTY_OUTPUT_VALUE_1ZU%</swes:observableProperty>
+    <swes:observableProperty>%OBSERVABLE_PROPERTY_OUTPUT_VALUE_VOL%</swes:observableProperty>
+    <swes:observableProperty>%OBSERVABLE_PROPERTY_OUTPUT_VALUE_WSP%</swes:observableProperty>
+    <swes:observableProperty>%OBSERVABLE_PROPERTY_OUTPUT_VALUE_QA1%</swes:observableProperty>
+    <swes:observableProperty>%OBSERVABLE_PROPERTY_OUTPUT_VALUE_QH1%</swes:observableProperty>
     <swes:metadata>
         <sos:SosInsertionMetadata>
+            <sos:observationType>http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement</sos:observationType>
+            <sos:observationType>http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement</sos:observationType>
+            <sos:observationType>http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement</sos:observationType>
+            <sos:observationType>http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement</sos:observationType>
             <sos:observationType>http://www.opengis.net/def/observationType/OGC-OM/2.0/OM_Measurement</sos:observationType>
             <sos:featureOfInterestType>http://www.opengis.net/def/samplingFeatureType/OGC-OM/2.0/SF_SamplingPoint</sos:featureOfInterestType>
         </sos:SosInsertionMetadata>

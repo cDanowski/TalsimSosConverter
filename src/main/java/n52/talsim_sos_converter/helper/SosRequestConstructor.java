@@ -243,16 +243,31 @@ public class SosRequestConstructor {
 
 		Map<String, String> insertSensorParameters = new HashMap<String, String>();
 
-		Node headerNode = talsimDocument.getElementsByTagName(Constants.TALSIM_HEADER_NODE).item(0);
+		/*
+		 * each series node contains information for one observableProperty
+		 */
+		NodeList seriesNodes = talsimDocument.getElementsByTagName(Constants.TALSIM_SERIES_NODE);
+		int numberOfSeriesNodes = seriesNodes.getLength();
+
+		for (int i = 0; i < numberOfSeriesNodes; i++) {
+			Node seriesNode = seriesNodes.item(i);
+
+			addObservablePropertyParameters(seriesNode, insertSensorParameters);
+
+		}
+
+		// STATIC SINGLE INPUT OBSERVABLE PROPERTY
+		insertSensorParameters.put(Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_INPUT_NAME_PLACEHOLDER,
+				Constants.OBSERVABLE_PROPERTY_INPUT_NAME);
+		insertSensorParameters.put(Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_INPUT_VALUE_PLACEHOLDER,
+				Constants.OBSERVABLE_PROPERTY_INPUT_VALUE);
+
+		Node exemplarHeaderNode = extractHeaderNodeFromSeriesNode(seriesNodes.item(0));
 
 		// STATION NAME
-		String stationName = extractSingleNodeValueFromHeaderSection(headerNode,
+		String stationName = extractSingleNodeValueFromHeaderSection(exemplarHeaderNode,
 				Constants.TALSIM_RESULT_STATION_NAME_NODE);
 		insertSensorParameters.put(Constants.INSERT_SENSOR_STATION_IDENTIFIER_PLACEHOLDER, stationName);
-
-		// UOM
-		String uom = extractSingleNodeValueFromHeaderSection(headerNode, Constants.TALSIM_RESULT_UNITS_UOM_NODE);
-		insertSensorParameters.put(Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_UOM_PLACEHOLDER, uom);
 
 		// STATION POSITION
 		// TODO FIXME replace with real position that is retrieved from
@@ -265,25 +280,10 @@ public class SosRequestConstructor {
 		insertSensorParameters.put(Constants.INSERT_SENSOR_STATION_POSITION_ALT_IN_METERS_PLACEHOLDER,
 				station_alt_in_meters);
 
-		/*
-		 * replace the PLACEHOLDERS within request template with the
-		 * corresponding values
-		 */
+		// FEATURE OF INTEREST
 		// TODO FIXME replace FOI with the real value --> ask Benjamin/Christoph
 		insertSensorParameters.put(Constants.INSERT_SENSOR_FEATURE_OF_INTEREST_IDENTIFIER_PLACEHOLDER,
 				Constants.FEATURE_OF_INTEREST_SAMPLING_FEATURE);
-
-		/*
-		 * OBSERVABLE PROPERTY
-		 */
-		insertSensorParameters.put(Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_INPUT_NAME_PLACEHOLDER,
-				Constants.OBSERVABLE_PROPERTY_INPUT_NAME);
-		insertSensorParameters.put(Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_INPUT_VALUE_PLACEHOLDER,
-				Constants.OBSERVABLE_PROPERTY_INPUT_VALUE);
-		insertSensorParameters.put(Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_NAME_PLACEHOLDER,
-				Constants.OBSERVABLE_PROPERTY_OUTPUT_NAME);
-		insertSensorParameters.put(Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_VALUE_PLACEHOLDER,
-				Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE);
 
 		/*
 		 * OFFERING
@@ -295,6 +295,102 @@ public class SosRequestConstructor {
 
 		return insertSensorParameters;
 	}
+
+	private static void addObservablePropertyParameters(Node seriesNode, Map<String, String> insertSensorParameters)
+			throws Exception {
+
+		/*
+		 * in TalsimResult.xml file each "series" node consists of exactly one
+		 * "header" node and multiple "event" nodes. With regard to InsertSensor
+		 * requests, only the information from the "header" node is relevant.
+		 * 
+		 * "header" should be the first child node of "series"
+		 */
+
+		
+		Node headerNode = extractHeaderNodeFromSeriesNode(seriesNode);
+
+		String obsProp_name_placeholder = "";
+		String obsProp_value_placeholder = "";
+		String obsProp_uom_placeholder = "";
+
+		String obsProp_name_value = "";
+		String obsProp_value_value = "";
+		String obsProp_uom_value = "";
+
+		String parameterID = extractParameterIdFromHeader(headerNode);
+
+		obsProp_uom_value = extractSingleNodeValueFromHeaderSection(headerNode, Constants.TALSIM_RESULT_UNITS_UOM_NODE);
+
+		switch (parameterID) {
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_1ZU:
+			obsProp_name_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_NAME_PLACEHOLDER_1ZU;
+			obsProp_value_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_VALUE_PLACEHOLDER_1ZU;
+			obsProp_uom_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_UOM_PLACEHOLDER_1ZU;
+
+			obsProp_name_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_NAME_1ZU;
+			obsProp_value_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_1ZU;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_VOL:
+			obsProp_name_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_NAME_PLACEHOLDER_VOL;
+			obsProp_value_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_VALUE_PLACEHOLDER_VOL;
+			obsProp_uom_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_UOM_PLACEHOLDER_VOL;
+
+			obsProp_name_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_NAME_VOL;
+			obsProp_value_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_VOL;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_WSP:
+			obsProp_name_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_NAME_PLACEHOLDER_WSP;
+			obsProp_value_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_VALUE_PLACEHOLDER_WSP;
+			obsProp_uom_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_UOM_PLACEHOLDER_WSP;
+
+			obsProp_name_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_NAME_WSP;
+			obsProp_value_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_WSP;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_QA1:
+			obsProp_name_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_NAME_PLACEHOLDER_QA1;
+			obsProp_value_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_VALUE_PLACEHOLDER_QA1;
+			obsProp_uom_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_UOM_PLACEHOLDER_QA1;
+
+			obsProp_name_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_NAME_QA1;
+			obsProp_value_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_QA1;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_QH1:
+			obsProp_name_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_NAME_PLACEHOLDER_QH1;
+			obsProp_value_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_VALUE_PLACEHOLDER_QH1;
+			obsProp_uom_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_UOM_PLACEHOLDER_QH1;
+
+			obsProp_name_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_NAME_QH1;
+			obsProp_value_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_QH1;
+			break;
+
+		default:
+			obsProp_name_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_NAME_PLACEHOLDER_1ZU;
+			obsProp_value_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_VALUE_PLACEHOLDER_1ZU;
+			obsProp_uom_placeholder = Constants.INSERT_SENSOR_OBSERVABLE_PROPERTY_OUTPUT_UOM_PLACEHOLDER_1ZU;
+
+			obsProp_name_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_NAME_1ZU;
+			obsProp_value_value = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_1ZU;
+			break;
+		}
+
+		/*
+		 * OBSERVABLE PROPERTY
+		 */
+
+		insertSensorParameters.put(obsProp_name_placeholder, obsProp_name_value);
+		insertSensorParameters.put(obsProp_value_placeholder, obsProp_value_value);
+
+		// UOM
+		insertSensorParameters.put(obsProp_uom_placeholder, obsProp_uom_value);
+
+	}
+
+	
 
 	private static Map<String, String> createInsertObservationParametersMap(Document talsimDocument,
 			Node talsimEventNode) throws Exception {
@@ -416,6 +512,44 @@ public class SosRequestConstructor {
 		String observationId = stationName + "_" + observableProperty + "_" + startDateAndTimeForRequest;
 
 		return observationId;
+	}
+
+	private static String extractParameterIdFromHeader(Node headerNode) throws Exception {
+
+		NodeList childNodes = headerNode.getChildNodes();
+		int numberOfChildNodes = childNodes.getLength();
+
+		for (int i = 0; i < numberOfChildNodes; i++) {
+			Node currentNode = childNodes.item(i);
+			String nodeName = currentNode.getNodeName();
+
+			if (nodeName.equals(Constants.TALSIM_RESULT_PARAMETER_ID_NODE)) {
+				// return its value
+				return currentNode.getTextContent();
+			}
+		}
+
+		throw new Exception("No `parameterId` node could be found within the 'header' section of TALSIM_Document!");
+
+	}
+	
+	private static Node extractHeaderNodeFromSeriesNode(Node seriesNode) throws Exception {
+		NodeList childNodes = seriesNode.getChildNodes();
+		
+		int numberOfChildNodes = childNodes.getLength();
+
+		for (int i = 0; i < numberOfChildNodes; i++) {
+			Node currentNode = childNodes.item(i);
+			String nodeName = currentNode.getNodeName();
+
+			if (nodeName.equals(Constants.TALSIM_HEADER_NODE)) {
+				// return its value
+				return currentNode;
+			}
+		}
+
+		throw new Exception("No `header` node could be found within the 'series' section of TALSIM_Document!");
+
 	}
 
 	private static String extractSingleNodeValueFromHeaderSection(Node headerNode, String tagName) throws Exception {
