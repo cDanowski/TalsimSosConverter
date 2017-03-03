@@ -257,9 +257,9 @@ public class SosRequestConstructor {
 		// STATION POSITION
 		// TODO FIXME replace with real position that is retrieved from
 		// stationMetadata
-		String station_lon_in_deg = Constants.TEST_LON_IN_DEG;
-		String station_lat_in_deg = Constants.TEST_LAT_IN_DEG;
-		String station_alt_in_meters = Constants.TEST_ALT_IN_METERS;
+		String station_lon_in_deg = Constants.STATION_LON_IN_DEG;
+		String station_lat_in_deg = Constants.STATION_LAT_IN_DEG;
+		String station_alt_in_meters = Constants.STATION_ALT_IN_METERS;
 		insertSensorParameters.put(Constants.INSERT_SENSOR_STATION_POSITION_LON_IN_DEG_PLACEHOLDER, station_lon_in_deg);
 		insertSensorParameters.put(Constants.INSERT_SENSOR_STATION_POSITION_LAT_IN_DEG_PLACEHOLDER, station_lat_in_deg);
 		insertSensorParameters.put(Constants.INSERT_SENSOR_STATION_POSITION_ALT_IN_METERS_PLACEHOLDER,
@@ -331,9 +331,9 @@ public class SosRequestConstructor {
 		// STATION POSITION
 		// TODO FIXME replace with real position that is retrieved from
 		// stationMetadata
-		String station_lon_in_deg = Constants.TEST_LON_IN_DEG;
-		String station_lat_in_deg = Constants.TEST_LAT_IN_DEG;
-		String station_alt_in_meters = Constants.TEST_ALT_IN_METERS;
+		String station_lon_in_deg = Constants.STATION_LON_IN_DEG;
+		String station_lat_in_deg = Constants.STATION_LAT_IN_DEG;
+		String station_alt_in_meters = Constants.STATION_ALT_IN_METERS;
 		insertObservationParameters.put(
 				Constants.INSERT_OBSERVATION_FEATURE_OF_INTEREST_POSITION_LON_IN_DEG_PLACEHOLDER, station_lon_in_deg);
 		insertObservationParameters.put(

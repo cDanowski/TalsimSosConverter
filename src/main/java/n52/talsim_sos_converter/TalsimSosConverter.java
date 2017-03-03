@@ -32,7 +32,7 @@ public class TalsimSosConverter {
 	 * @param SosURL
 	 *            URL to the SOS-T (transactional SOS instance), to which the
 	 *            data from {@code talsimOutput} should be transferred to
-	 * @return <b>true</b> if insertion was successfull, <b>false</b> otherwise
+	 * @return <b>true</b> if insertion was successful, <b>false</b> otherwise
 	 * @throws Exception
 	 */
 	public boolean insertOutputToSOS(InputStream talsimOutput, URL SosURL) throws Exception {

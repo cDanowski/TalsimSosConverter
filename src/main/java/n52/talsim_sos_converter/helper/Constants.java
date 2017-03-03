@@ -56,9 +56,9 @@ public class Constants {
 	 * TEMPORARY STATION POSITION -- TODO should be removed in future and be
 	 * taken from stationMetadata instead
 	 */
-	public static final String TEST_LON_IN_DEG = "7.0";
-	public static final String TEST_LAT_IN_DEG = "52.0";
-	public static final String TEST_ALT_IN_METERS = "30";
+	public static final String STATION_LON_IN_DEG = "7.369676";
+	public static final String STATION_LAT_IN_DEG = "51.14431";
+	public static final String STATION_ALT_IN_METERS = "0.0";
 
 	/*
 	 * InsertSensor PLACEHOLDER CONSTANTS
