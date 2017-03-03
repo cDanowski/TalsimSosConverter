@@ -49,7 +49,8 @@ public class SosRequestConstructor {
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Offering Identifier</td>
-	 * <td class="tg-baqh">none - constant value "Wasserdurchfluss"</td>
+	 * <td class="tg-baqh">none - constant value
+	 * {@link Constants#OFFERING_IDENTIFIER_VALUE}</td>
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Phenomenon Time</td>
@@ -62,7 +63,51 @@ public class SosRequestConstructor {
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Observable Property</td>
-	 * <td class="tg-baqh">none - constant value "Wasserdurchfluss"</td>
+	 * <td class="tg-baqh">as observable property for process inputs the
+	 * constant value {@link Constants#OBSERVABLE_PROPERTY_INPUT_VALUE} is used.
+	 * <br/>
+	 * <br/>
+	 * As for the output observable properties, each "series" node of
+	 * TalsimResult.xml is mapped to an individual observable property depending
+	 * on the value of node "parameterId". It indicates the type of output as
+	 * follows:
+	 * 
+	 * <style type="text/css"> .tg {border-collapse:collapse;border-spacing:0;}
+	 * .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px
+	 * 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal
+	 * ;} .tg th{font-family:Arial,
+	 * sans-serif;font-size:14px;font-weight:normal;padding:10px
+	 * 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal
+	 * ;} .tg .tg-baqh{text-align:center;vertical-align:top} .tg
+	 * .tg-amwm{font-weight:bold;text-align:center;vertical-align:top} </style>
+	 * <table class="tg">
+	 * <tr>
+	 * <th class="tg-amwm">parameterId</th>
+	 * <th class="tg-amwm">observable property</th>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">1ZU</td>
+	 * <td class="tg-baqh">Zufluss</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">VOL</td>
+	 * <td class="tg-baqh">Volumen</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">WSP</td>
+	 * <td class="tg-baqh">Wasserstand</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">QA1</td>
+	 * <td class="tg-baqh">Abgane</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">QH1</td>
+	 * <td class="tg-baqh">Hochwasserentlastung</td>
+	 * </tr>
+	 * </table>
+	 * 
+	 * </td>
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Feature of Interest Identifier</td>
@@ -307,7 +352,6 @@ public class SosRequestConstructor {
 		 * "header" should be the first child node of "series"
 		 */
 
-		
 		Node headerNode = extractHeaderNodeFromSeriesNode(seriesNode);
 
 		String obsProp_name_placeholder = "";
@@ -389,8 +433,6 @@ public class SosRequestConstructor {
 		insertSensorParameters.put(obsProp_uom_placeholder, obsProp_uom_value);
 
 	}
-
-	
 
 	private static Map<String, String> createInsertObservationParametersMap(Document talsimDocument,
 			Node talsimEventNode) throws Exception {
@@ -532,10 +574,10 @@ public class SosRequestConstructor {
 		throw new Exception("No `parameterId` node could be found within the 'header' section of TALSIM_Document!");
 
 	}
-	
+
 	private static Node extractHeaderNodeFromSeriesNode(Node seriesNode) throws Exception {
 		NodeList childNodes = seriesNode.getChildNodes();
-		
+
 		int numberOfChildNodes = childNodes.getLength();
 
 		for (int i = 0; i < numberOfChildNodes; i++) {
