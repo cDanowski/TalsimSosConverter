@@ -1,6 +1,8 @@
 package n52.talsim_sos_converter.helper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -99,7 +101,7 @@ public class SosRequestConstructor {
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">QA1</td>
-	 * <td class="tg-baqh">Abgane</td>
+	 * <td class="tg-baqh">Abgabe</td>
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">QH1</td>
@@ -157,14 +159,13 @@ public class SosRequestConstructor {
 
 	/**
 	 * Extracts the relevant parameters for a
-	 * {@code SOS InsertObservation request} from {@code talsimDocument} and
-	 * {@code currentTalsimEventNode} and replaces the <i>placeholders</i>
-	 * within the {@code insertObservationTemplate}. As a result, the method
-	 * returns a fully usable {@code SOS InsertSensor request} as String that
-	 * can be send to a transactional SOS instance. If any parameter cannot be
-	 * extracted from {@code talsimDocument} then it is either generated or
-	 * assumed as constant value (constant definitions are included in
-	 * {@link Constants}).
+	 * {@code SOS InsertObservation request} and replaces the
+	 * <i>placeholders</i> within the {@code insertObservationTemplate}. As a
+	 * result, the method returns a fully usable
+	 * {@code SOS InsertSensor request} as String that can be send to a
+	 * transactional SOS instance. If any parameter cannot be extracted from the
+	 * Talsim output then it is either generated or assumed as constant value
+	 * (constant definitions are included in {@link Constants}).
 	 * 
 	 * The relevant parameters are:
 	 * 
@@ -186,7 +187,8 @@ public class SosRequestConstructor {
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Offering Identifier</td>
-	 * <td class="tg-baqh">none - constant value "Wasserdurchfluss"</td>
+	 * <td class="tg-baqh">none - constant value
+	 * {@link Constants#OFFERING_IDENTIFIER_VALUE}</td>
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Observation Identifier</td>
@@ -204,7 +206,46 @@ public class SosRequestConstructor {
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Observable Property</td>
-	 * <td class="tg-baqh">none - constant value "Wasserdurchfluss"</td>
+	 * <td class="tg-baqh">value depends on the value of node "parameterId"
+	 * within the "header" node of the associated "series" node. It indicates
+	 * the type of output as follows:
+	 * 
+	 * <style type="text/css"> .tg {border-collapse:collapse;border-spacing:0;}
+	 * .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px
+	 * 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal
+	 * ;} .tg th{font-family:Arial,
+	 * sans-serif;font-size:14px;font-weight:normal;padding:10px
+	 * 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal
+	 * ;} .tg .tg-baqh{text-align:center;vertical-align:top} .tg
+	 * .tg-amwm{font-weight:bold;text-align:center;vertical-align:top} </style>
+	 * <table class="tg">
+	 * <tr>
+	 * <th class="tg-amwm">parameterId</th>
+	 * <th class="tg-amwm">observable property</th>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">1ZU</td>
+	 * <td class="tg-baqh">Zufluss</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">VOL</td>
+	 * <td class="tg-baqh">Volumen</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">WSP</td>
+	 * <td class="tg-baqh">Wasserstand</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">QA1</td>
+	 * <td class="tg-baqh">Abgabe</td>
+	 * </tr>
+	 * <tr>
+	 * <td class="tg-baqh">QH1</td>
+	 * <td class="tg-baqh">Hochwasserentlastung</td>
+	 * </tr>
+	 * </table>
+	 * 
+	 * </td>
 	 * </tr>
 	 * <tr>
 	 * <td class="tg-baqh">Feature of Interest Identifier (sampled Feature)</td>
@@ -233,13 +274,18 @@ public class SosRequestConstructor {
 	 * </tr>
 	 * </table>
 	 * 
-	 * @param talsimDocument
-	 *            the parsed contents of a {@code TalsimResult document}
 	 * @param currentTalsimEventNode
 	 *            the {@code TALSIM Event node instance}, for which an
 	 *            {@code InsertObservation request} is constructed. It comprises
 	 *            relevant information such as <i>event/measurement/phenomenon
 	 *            time</i> and <i>measurement value</i>
+	 * @param headerNode
+	 *            the "header" node associated to the
+	 *            {@code currentTalsimEventNode}
+	 * 
+	 * @param timeZone
+	 *            a String value representing the {@code timeZone} parameter
+	 *            from TalsimResult.xml
 	 * 
 	 * @param insertObservationTemplate
 	 *            a String representation of an
@@ -249,20 +295,76 @@ public class SosRequestConstructor {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String createInsertObservationRequest(Document talsimDocument, Node currentTalsimEventNode,
+	public static String createInsertObservationRequest(Node currentTalsimEventNode, Node headerNode, String timeZone,
 			String insertObservationTemplate) throws Exception {
 
 		/*
 		 * extract the required information from talsimDocument
 		 */
 
-		Map<String, String> talsimInsertObservationParameters = createInsertObservationParametersMap(talsimDocument,
-				currentTalsimEventNode);
+		Map<String, String> talsimInsertObservationParameters = createInsertObservationParametersMap(headerNode,
+				currentTalsimEventNode, timeZone);
 
 		String insertObservationRequest = replacePlaceholdersInTemplate(insertObservationTemplate,
 				talsimInsertObservationParameters);
 
 		return insertObservationRequest;
+	}
+
+	/**
+	 * Creates and Collects all InserObservation requests for each {@code event}
+	 * node within the given {@code series} node.
+	 * 
+	 * @param talsimDocument
+	 *            the whole Talsim output document
+	 * @param seriesNode
+	 *            the "series" node that contains all relevant "event" nodes
+	 * @param insertObservationRequestTemplate
+	 *            a String representation of an
+	 *            {@code InsertObservation request template} containing several
+	 *            <i>placeholders</i> that will be replaced by the contents from
+	 *            {@code talsimDocument}
+	 * @return a list of all InsertObservation requests associated to the given
+	 *         "series" node
+	 * @throws Exception
+	 */
+	public static List<String> createInsertObservationRequestsForSeriesNode(Document talsimDocument, Node seriesNode,
+			String insertObservationRequestTemplate) throws Exception {
+
+		List<String> insertObservationRequests = new ArrayList<>();
+
+		/*
+		 * extract header node
+		 */
+		Node headerNode = extractHeaderNodeFromSeriesNode(seriesNode);
+
+		/*
+		 * extract timeZone parameter
+		 */
+		String timeZone = extractSingleNodeValueFromDocument(talsimDocument, Constants.TALSIM_RESULT_TIME_ZONE_NODE);
+
+		/*
+		 * extract event nodes
+		 */
+		List<Node> eventNodes = extractEventNodesFromSeriesNode(seriesNode);
+
+		/*
+		 * extract all event nodes
+		 */
+
+		for (Node currentTalsimEventNode : eventNodes) {
+
+			String insertObservationTemplate_copy = insertObservationRequestTemplate;
+
+			String insertObservationRequest = SosRequestConstructor.createInsertObservationRequest(
+					currentTalsimEventNode, headerNode, timeZone, insertObservationTemplate_copy);
+
+			System.out.println(insertObservationRequest);
+
+			insertObservationRequests.add(insertObservationRequest);
+		}
+
+		return insertObservationRequests;
 	}
 
 	private static String replacePlaceholdersInTemplate(String requestTemplate, Map<String, String> talsimParameters) {
@@ -341,8 +443,8 @@ public class SosRequestConstructor {
 		return insertSensorParameters;
 	}
 
-	private static void addObservablePropertyParameters_insertSensor(Node seriesNode, Map<String, String> insertSensorParameters)
-			throws Exception {
+	private static void addObservablePropertyParameters_insertSensor(Node seriesNode,
+			Map<String, String> insertSensorParameters) throws Exception {
 
 		/*
 		 * in TalsimResult.xml file each "series" node consists of exactly one
@@ -434,8 +536,8 @@ public class SosRequestConstructor {
 
 	}
 
-	private static Map<String, String> createInsertObservationParametersMap(Document talsimDocument,
-			Node talsimEventNode) throws Exception {
+	private static Map<String, String> createInsertObservationParametersMap(Node headerNode, Node talsimEventNode,
+			String timeZone) throws Exception {
 
 		/*
 		 * create a map with all sensor parameters
@@ -443,14 +545,10 @@ public class SosRequestConstructor {
 
 		Map<String, String> insertObservationParameters = new HashMap<String, String>();
 
-		Node headerNode = talsimDocument.getElementsByTagName(Constants.TALSIM_HEADER_NODE).item(0);
-
 		// STATION NAME
 		String stationName = extractSingleNodeValueFromHeaderSection(headerNode,
 				Constants.TALSIM_RESULT_STATION_NAME_NODE);
 		insertObservationParameters.put(Constants.INSERT_OBSERVATION_PROCEDURE_IDENTIFIER_PLACEHOLDER, stationName);
-
-		String timeZone = extractSingleNodeValueFromDocument(talsimDocument, Constants.TALSIM_RESULT_TIME_ZONE_NODE);
 
 		// EVENT DATE AND TIME
 		String eventDate_date = extractSingleAttributeValueFromEventNode(talsimEventNode,
@@ -465,6 +563,17 @@ public class SosRequestConstructor {
 		// UOM
 		String uom = extractSingleNodeValueFromHeaderSection(headerNode, Constants.TALSIM_RESULT_UNITS_UOM_NODE);
 		insertObservationParameters.put(Constants.INSERT_OBSERVATION_UOM_NAME_PLACEHOLDER, uom);
+
+		/*
+		 * OBSERVABLE PROPERTY
+		 * 
+		 * depends on the value of the "parameterId" node within the "header"
+		 * node
+		 */
+		String observableProperty = deriveObservablePropertyFromParameterId(headerNode);
+
+		insertObservationParameters.put(Constants.INSERT_OBSERVATION_OBSERVABLE_PROPERTY_IDENTIFIER_PLACEHOLDER,
+				observableProperty);
 
 		// STATION POSITION
 		// TODO FIXME replace with real position that is retrieved from
@@ -487,19 +596,13 @@ public class SosRequestConstructor {
 				Constants.FEATURE_OF_INTEREST_SAMPLED_FEATURE);
 
 		/*
-		 * OBSERVABLE PROPERTY
-		 */
-		insertObservationParameters.put(Constants.INSERT_OBSERVATION_OBSERVABLE_PROPERTY_IDENTIFIER_PLACEHOLDER,
-				Constants.OBSERVABLE_PROPERTY_INPUT_VALUE);
-
-		/*
 		 * OFFERING
 		 */
 		insertObservationParameters.put(Constants.INSERT_OBSERVATION_OFFERING_IDENTIFIER_PLACEHOLDER,
 				Constants.OFFERING_IDENTIFIER_NAME);
 
 		// OBSERVATION IDENTIFIER
-		String observationId = generateObservationIdentifier(stationName, Constants.OBSERVABLE_PROPERTY_INPUT_VALUE,
+		String observationId = generateObservationIdentifier(stationName, observableProperty,
 				startDateAndTimeForRequest);
 		insertObservationParameters.put(Constants.INSERT_OBSERVATION_OBSERVATION_IDENTIFIER_PLACEHOLDER, observationId);
 
@@ -509,6 +612,39 @@ public class SosRequestConstructor {
 		insertObservationParameters.put(Constants.INSERT_OBSERVATION_RESULT_VALUE_PLACEHOLDER, resultValue);
 
 		return insertObservationParameters;
+	}
+
+	private static String deriveObservablePropertyFromParameterId(Node headerNode) throws Exception {
+		String observableProperty = "";
+		String parameterID = extractParameterIdFromHeader(headerNode);
+
+		switch (parameterID) {
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_1ZU:
+
+			observableProperty = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_1ZU;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_VOL:
+			observableProperty = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_VOL;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_WSP:
+			observableProperty = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_WSP;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_QA1:
+			observableProperty = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_QA1;
+			break;
+
+		case Constants.TALSIM_OUTPUT_PARAMETER_IDENTIFIER_QH1:
+			observableProperty = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_QH1;
+			break;
+
+		default:
+			observableProperty = Constants.OBSERVABLE_PROPERTY_OUTPUT_VALUE_1ZU;
+			break;
+		}
+		return observableProperty;
 	}
 
 	private static String generateDateAndTimeString(String date, String time, String timeZone) {
@@ -591,7 +727,26 @@ public class SosRequestConstructor {
 		}
 
 		throw new Exception("No `header` node could be found within the 'series' section of TALSIM_Document!");
+	}
 
+	private static List<Node> extractEventNodesFromSeriesNode(Node seriesNode) {
+		List<Node> eventNodes = new ArrayList<Node>();
+
+		NodeList childNodes = seriesNode.getChildNodes();
+
+		int numberOfChildNodes = childNodes.getLength();
+
+		for (int i = 0; i < numberOfChildNodes; i++) {
+			Node currentNode = childNodes.item(i);
+			String nodeName = currentNode.getNodeName();
+
+			if (nodeName.equals(Constants.TALSIM_RESULT_EVENT_NODE)) {
+				// return its value
+				eventNodes.add(currentNode);
+			}
+		}
+
+		return eventNodes;
 	}
 
 	private static String extractSingleNodeValueFromHeaderSection(Node headerNode, String tagName) throws Exception {

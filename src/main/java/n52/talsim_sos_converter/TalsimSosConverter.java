@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -15,9 +16,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import n52.talsim_sos_converter.helper.Constants;
+import n52.talsim_sos_converter.helper.ResourceLoader;
 import n52.talsim_sos_converter.helper.SosRequestConstructor;
 import n52.talsim_sos_converter.helper.SosRequestSender;
-import n52.talsim_sos_converter.helper.ResourceLoader;
 
 public class TalsimSosConverter {
 
@@ -77,32 +78,21 @@ public class TalsimSosConverter {
 		NodeList seriesNodes = talsimDocument.getElementsByTagName(Constants.TALSIM_SERIES_NODE);
 		int numberOfSeriesNodes = seriesNodes.getLength();
 
+		
+		/*
+		 * for each event in seriesNode: create InsertObservation requests
+		 * and send them to SOS-T
+		 */
 		for (int i = 0; i < numberOfSeriesNodes; i++) {
 			Node seriesNode = seriesNodes.item(i);
-
-			/*
-			 * for each event in seriesNode: create InsertObservation request
-			 * and send it to SOS-T
-			 */
-			NodeList talsim_series_eventNodes = talsimDocument.getElementsByTagName(Constants.TALSIM_RESULT_EVENT_NODE);
-			int numberOfEventNodes = talsim_series_eventNodes.getLength();
-
-			for (int index = 0; index < numberOfEventNodes; index++) {
-				Node currentTalsimEventNode = talsim_series_eventNodes.item(index);
-
-				String insertObservationTemplate_copy = insertObservationRequestTemplate;
-
-				String insertObservationRequest = SosRequestConstructor.createInsertObservationRequest(talsimDocument,
-						currentTalsimEventNode, insertObservationTemplate_copy);
-
-				// if(index == 1){
-				// System.out.println(insertObservationRequest);
-				// }
-
+			
+			List<String> insertObservationRequests = SosRequestConstructor.createInsertObservationRequestsForSeriesNode(talsimDocument,
+					seriesNode, insertObservationRequestTemplate);
+			
+			for (String insertObservationRequest : insertObservationRequests) {
 				int responseCode_insertObservation = SosRequestSender.sendInsertObservationRequestToSOS(SosURL,
 						insertObservationRequest);
-			}
-
+			}		
 		}
 	}
 
