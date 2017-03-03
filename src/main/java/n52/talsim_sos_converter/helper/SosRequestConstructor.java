@@ -297,7 +297,7 @@ public class SosRequestConstructor {
 		for (int i = 0; i < numberOfSeriesNodes; i++) {
 			Node seriesNode = seriesNodes.item(i);
 
-			addObservablePropertyParameters(seriesNode, insertSensorParameters);
+			addObservablePropertyParameters_insertSensor(seriesNode, insertSensorParameters);
 
 		}
 
@@ -341,7 +341,7 @@ public class SosRequestConstructor {
 		return insertSensorParameters;
 	}
 
-	private static void addObservablePropertyParameters(Node seriesNode, Map<String, String> insertSensorParameters)
+	private static void addObservablePropertyParameters_insertSensor(Node seriesNode, Map<String, String> insertSensorParameters)
 			throws Exception {
 
 		/*
