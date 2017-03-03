@@ -2,6 +2,7 @@ package n52.talsim_sos_converter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ProtocolException;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -51,6 +52,62 @@ public class TalsimSosConverter {
 		/*
 		 * create InsertSensor Request and send it to SOS-T
 		 */
+		int responseCode_insertSensor = processInsertSensorRequest(SosURL, talsimDocument, insertSensorRequestTemplate);
+
+		/*
+		 * process InsertObsrvation
+		 */
+		processInsertObservationRequests(SosURL, talsimDocument, insertObservationRequestTemplate);
+
+		/*
+		 * optional: implement check, whether insertion was successful TODO
+		 * check, if response object is != ExceptionReport, or ==
+		 * InsertObservationResponse or == InsertSensorResponse
+		 */
+
+		return true;
+	}
+
+	private void processInsertObservationRequests(URL SosURL, Document talsimDocument,
+			String insertObservationRequestTemplate) throws Exception, ProtocolException, IOException {
+		/*
+		 * each series node contains information for one observableProperty,
+		 * hence different request have to be set-up for different series nodes
+		 */
+		NodeList seriesNodes = talsimDocument.getElementsByTagName(Constants.TALSIM_SERIES_NODE);
+		int numberOfSeriesNodes = seriesNodes.getLength();
+
+		for (int i = 0; i < numberOfSeriesNodes; i++) {
+			Node seriesNode = seriesNodes.item(i);
+
+			/*
+			 * for each event in seriesNode: create InsertObservation request
+			 * and send it to SOS-T
+			 */
+			NodeList talsim_series_eventNodes = talsimDocument.getElementsByTagName(Constants.TALSIM_RESULT_EVENT_NODE);
+			int numberOfEventNodes = talsim_series_eventNodes.getLength();
+
+			for (int index = 0; index < numberOfEventNodes; index++) {
+				Node currentTalsimEventNode = talsim_series_eventNodes.item(index);
+
+				String insertObservationTemplate_copy = insertObservationRequestTemplate;
+
+				String insertObservationRequest = SosRequestConstructor.createInsertObservationRequest(talsimDocument,
+						currentTalsimEventNode, insertObservationTemplate_copy);
+
+				// if(index == 1){
+				// System.out.println(insertObservationRequest);
+				// }
+
+				int responseCode_insertObservation = SosRequestSender.sendInsertObservationRequestToSOS(SosURL,
+						insertObservationRequest);
+			}
+
+		}
+	}
+
+	private int processInsertSensorRequest(URL SosURL, Document talsimDocument, String insertSensorRequestTemplate)
+			throws Exception, IOException {
 		String insertSensorRequest = SosRequestConstructor.createInsertSensorRequest(talsimDocument,
 				insertSensorRequestTemplate);
 
@@ -58,34 +115,7 @@ public class TalsimSosConverter {
 
 		int responseCode_insertSensor = SosRequestSender.sendInsertSensorRequestToSOS(SosURL, insertSensorRequest);
 
-		/*
-		 * for each event in TalsimResult: create InsertObservation and send it
-		 * to SOS-T
-		 */
-		NodeList talsim_eventNodes = talsimDocument.getElementsByTagName(Constants.TALSIM_RESULT_EVENT_NODE);
-		int numberOfEventNodes = talsim_eventNodes.getLength();
-
-		for (int index = 0; index < numberOfEventNodes; index++) {
-			Node currentTalsimEventNode = talsim_eventNodes.item(index);
-
-			String insertObservationTemplate_copy = insertObservationRequestTemplate;
-
-			String insertObservationRequest = SosRequestConstructor.createInsertObservationRequest(talsimDocument,
-					currentTalsimEventNode, insertObservationTemplate_copy);
-
-			// if(index == 1){
-			// System.out.println(insertObservationRequest);
-			// }
-
-			int responseCode_insertObservation = SosRequestSender.sendInsertObservationRequestToSOS(SosURL,
-					insertObservationRequest);
-		}
-
-		/*
-		 * optional: implement check, whether insertion was successful
-		 */
-
-		return true;
+		return responseCode_insertSensor;
 	}
 
 	private Document parseTalsimDocument(InputStream talsimOutput)
