@@ -26,15 +26,15 @@ public class SosRequestSender {
 	 * @param insertObservationRequest
 	 *            full SOS InsertObservation request body as POX (Content-Type
 	 *            "application/xml")
-	 * @return the response code (e.g. 400 for "Bad Request" or 200 for "OK")
+	 * @return the response (body) of the SOS instance as String
 	 * @throws ProtocolException
 	 * @throws IOException
 	 */
-	public static int sendInsertObservationRequestToSOS(URL sosURL, String insertObservationRequest)
+	public static String sendInsertObservationRequestToSOS(URL sosURL, String insertObservationRequest)
 			throws ProtocolException, IOException {
-		int responseCode = send_http_post(sosURL, insertObservationRequest);
+		String response_insertObservation = send_http_post(sosURL, insertObservationRequest);
 
-		return responseCode;
+		return response_insertObservation;
 	}
 
 	/**
@@ -46,13 +46,13 @@ public class SosRequestSender {
 	 * @param insertSensorRequest
 	 *            full SOS InsertSensor request body as POX (Content-Type
 	 *            "application/xml")
-	 * @return the response code (e.g. 400 for "Bad Request" or 200 for "OK")
+	 * @return the response (body) of the SOS instance as String
 	 * @throws IOException
 	 */
-	public static int sendInsertSensorRequestToSOS(URL sosURL, String insertSensorRequest) throws IOException {
-		int responseCode = send_http_post(sosURL, insertSensorRequest);
+	public static String sendInsertSensorRequestToSOS(URL sosURL, String insertSensorRequest) throws IOException {
+		String response_insertSensor = send_http_post(sosURL, insertSensorRequest);
 
-		return responseCode;
+		return response_insertSensor;
 	}
 
 	/**
@@ -64,11 +64,11 @@ public class SosRequestSender {
 	 *            the URL of the SOS instance, to which the request is sent
 	 * @param post_body
 	 *            HTTP POST request body as POX Content-Type "application/xml")
-	 * @return the response code (e.g. 400 for "Bad Request" or 200 for "OK")
+	 * @return the response (body) of the SOS instance as String
 	 * @throws IOException
 	 * @throws ProtocolException
 	 */
-	private static int send_http_post(URL sosURL, String post_body) throws IOException, ProtocolException {
+	private static String send_http_post(URL sosURL, String post_body) throws IOException, ProtocolException {
 		HttpURLConnection connection = (HttpURLConnection) sosURL.openConnection();
 		
 		String token = ResourceLoader.fetchAuthorizationToken();
@@ -109,7 +109,7 @@ public class SosRequestSender {
 		// disconnect
 		connection.disconnect();
 
-		return responseCode;
+		return response.toString();
 	}
 
 }

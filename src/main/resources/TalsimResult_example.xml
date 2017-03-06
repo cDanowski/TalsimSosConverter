@@ -10,7 +10,7 @@
             <startDate date="2014-02-10" time="00:00:00"/>
             <endDate date="2014-02-19" time="23:45:00"/>
             <missVal>-9999.9990</missVal>
-            <stationName>Bever-Talsperre_test_2</stationName>
+            <stationName>Bever-Talsperre</stationName>
             <units>m3/s</units>
         </header>
         <event date="2014-02-10" time="00:00:00" value="0.120"/>
@@ -983,7 +983,7 @@
             <startDate date="2014-02-10" time="00:00:00"/>
             <endDate date="2014-02-19" time="23:45:00"/>
             <missVal>-9999.9990</missVal>
-            <stationName>Bever-Talsperre_test_2</stationName>
+            <stationName>Bever-Talsperre</stationName>
             <units>Tsd.m3</units>
         </header>
         <event date="2014-02-10" time="00:00:00" value="12358.038"/>
@@ -1956,7 +1956,7 @@
             <startDate date="2014-02-10" time="00:00:00"/>
             <endDate date="2014-02-19" time="23:45:00"/>
             <missVal>-9999.9990</missVal>
-            <stationName>Bever-Talsperre_test_2</stationName>
+            <stationName>Bever-Talsperre</stationName>
             <units>mNN</units>
         </header>
         <event date="2014-02-10" time="00:00:00" value="288.652"/>
@@ -2929,7 +2929,7 @@
             <startDate date="2014-02-10" time="00:00:00"/>
             <endDate date="2014-02-19" time="23:45:00"/>
             <missVal>-9999.9990</missVal>
-            <stationName>Bever-Talsperre_test_2</stationName>
+            <stationName>Bever-Talsperre</stationName>
             <units>m3/s</units>
         </header>
         <event date="2014-02-10" time="00:00:00" value="2.300"/>
@@ -3902,7 +3902,7 @@
             <startDate date="2014-02-10" time="00:00:00"/>
             <endDate date="2014-02-19" time="23:45:00"/>
             <missVal>-9999.9990</missVal>
-            <stationName>Bever-Talsperre_test_2</stationName>
+            <stationName>Bever-Talsperre</stationName>
             <units>m3/s</units>
         </header>
         <event date="2014-02-10" time="00:00:00" value="0.000"/>

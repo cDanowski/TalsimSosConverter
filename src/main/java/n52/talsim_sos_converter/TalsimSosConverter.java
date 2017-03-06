@@ -22,6 +22,9 @@ import n52.talsim_sos_converter.helper.SosRequestSender;
 
 public class TalsimSosConverter {
 
+	private static final String INSERT_OBSERVATION_RESPONSE_STRING = "InsertObservationResponse";
+	private static final String INSERT_SENSOR_RESPONSE_STRING = "InsertSensorResponse";
+
 	/**
 	 * Parses the TALSIM output/result and uses the transactional SOS methods to
 	 * insert both the sensor and all included measurements to the SOS instance
@@ -53,7 +56,10 @@ public class TalsimSosConverter {
 		/*
 		 * create InsertSensor Request and send it to SOS-T
 		 */
-		int responseCode_insertSensor = processInsertSensorRequest(SosURL, talsimDocument, insertSensorRequestTemplate);
+		String sosResponse_insertSensor = processInsertSensorRequest(SosURL, talsimDocument,
+				insertSensorRequestTemplate);
+
+		// TODO implement check for validity
 
 		/*
 		 * process InsertObsrvation
@@ -78,33 +84,76 @@ public class TalsimSosConverter {
 		NodeList seriesNodes = talsimDocument.getElementsByTagName(Constants.TALSIM_SERIES_NODE);
 		int numberOfSeriesNodes = seriesNodes.getLength();
 
-		
 		/*
-		 * for each event in seriesNode: create InsertObservation requests
-		 * and send them to SOS-T
+		 * for each event in seriesNode: create InsertObservation requests and
+		 * send them to SOS-T
 		 */
 		for (int i = 0; i < numberOfSeriesNodes; i++) {
 			Node seriesNode = seriesNodes.item(i);
-			
-			List<String> insertObservationRequests = SosRequestConstructor.createInsertObservationRequestsForSeriesNode(talsimDocument,
-					seriesNode, insertObservationRequestTemplate);
-			
+
+			List<String> insertObservationRequests = SosRequestConstructor.createInsertObservationRequestsForSeriesNode(
+					talsimDocument, seriesNode, insertObservationRequestTemplate);
+
 			for (String insertObservationRequest : insertObservationRequests) {
-				int responseCode_insertObservation = SosRequestSender.sendInsertObservationRequestToSOS(SosURL,
+				String sosResponse_insertObservation = SosRequestSender.sendInsertObservationRequestToSOS(SosURL,
 						insertObservationRequest);
-				
-			}		
+
+				// throw exception if insertion was not successful
+				checkResponse_insertObservation(sosResponse_insertObservation);
+
+			}
 		}
 	}
 
-	private int processInsertSensorRequest(URL SosURL, Document talsimDocument, String insertSensorRequestTemplate)
+	private String processInsertSensorRequest(URL SosURL, Document talsimDocument, String insertSensorRequestTemplate)
 			throws Exception, IOException {
 		String insertSensorRequest = SosRequestConstructor.createInsertSensorRequest(talsimDocument,
 				insertSensorRequestTemplate);
 
-		int responseCode_insertSensor = SosRequestSender.sendInsertSensorRequestToSOS(SosURL, insertSensorRequest);
+		String response_insertSensor = SosRequestSender.sendInsertSensorRequestToSOS(SosURL, insertSensorRequest);
 
-		return responseCode_insertSensor;
+		// throw exception if insertion was not successful
+		checkResponse_insertSensor(response_insertSensor);
+
+		return response_insertSensor;
+	}
+
+	private void checkResponse_insertSensor(String response_insertSensor) throws Exception {
+		/*
+		 * check if response contains th String "InsertSensorResponse"
+		 * 
+		 * If yes, then assume that request was accepted and insertion was
+		 * successful
+		 * 
+		 * If no, assume that something went wrong and throw exception
+		 */
+
+		if (response_insertSensor.contains(INSERT_SENSOR_RESPONSE_STRING))
+			return;
+		else {
+			// TODO log statement
+			throw new Exception("InsertSensorRequest failed! SOS instance returned the following response: "
+					+ response_insertSensor);
+		}
+	}
+
+	private void checkResponse_insertObservation(String response_insertObservation) throws Exception {
+		/*
+		 * check if response contains th String "InsertObservationResponse"
+		 * 
+		 * If yes, then assume that request was accepted and insertion was
+		 * successful
+		 * 
+		 * If no, assume that something went wrong and throw exception
+		 */
+
+		if (response_insertObservation.contains(INSERT_OBSERVATION_RESPONSE_STRING))
+			return;
+		else {
+			// TODO log statement
+			throw new Exception("InsertObservationRequest failed! SOS instance returned the following response: "
+					+ response_insertObservation);
+		}
 	}
 
 	private Document parseTalsimDocument(InputStream talsimOutput)
