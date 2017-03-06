@@ -1,0 +1,20 @@
+<Configuration status="info">
+
+	<Properties>
+		<Property name="logFile">log/${pom.artifactId}-${project.version}
+		</Property>
+	</Properties>
+
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+		</Console>
+
+	</Appenders>
+	<Loggers>
+
+		<Root level="all">
+			<AppenderRef ref="Console" />
+		</Root>
+	</Loggers>
+</Configuration>

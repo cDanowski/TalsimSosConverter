@@ -125,14 +125,15 @@ public class SosRequestSender {
 		}
 		in.close();
 
-		// log result
-		if (logger.isDebugEnabled())
-			logger.debug("Response body:", response.toString());
-
 		// disconnect
 		connection.disconnect();
+		
+		// log result
+		String responseBody = response.toString();
+		if (logger.isDebugEnabled())
+			logger.debug("Response body: {}", responseBody);
 
-		return response.toString();
+		return responseBody;
 	}
 
 }
