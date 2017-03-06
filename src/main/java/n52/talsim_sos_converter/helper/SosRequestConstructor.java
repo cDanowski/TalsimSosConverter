@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -23,6 +25,8 @@ import org.w3c.dom.NodeList;
  *
  */
 public class SosRequestConstructor {
+
+	private static Logger logger = LoggerFactory.getLogger(SosRequestConstructor.class);
 
 	/**
 	 * Extracts the relevant parameters for a {@code SOS InsertSensor request}
@@ -150,7 +154,18 @@ public class SosRequestConstructor {
 		 * extract the required information from talsimDocument
 		 */
 
+		if (logger.isDebugEnabled())
+			logger.debug("Extracting InsertSensor parameters from TalsimResult and other constant definitions.");
+
 		Map<String, String> talsimInsertSensorParameters = createInsertSensorParametersMap(talsimDocument);
+
+		if (logger.isDebugEnabled())
+			logger.debug("Following parameters for InsertSensorRequest were extracted from TalsimResult: '{}'",
+					talsimInsertSensorParameters);
+
+		if (logger.isDebugEnabled())
+			logger.debug(
+					"Replace all placeholders within InsertSensor template with extracted parameters and other constant definitions.");
 
 		String insertSensorRequest = replacePlaceholdersInTemplate(insertSensorTemplate, talsimInsertSensorParameters);
 
@@ -302,8 +317,25 @@ public class SosRequestConstructor {
 		 * extract the required information from talsimDocument
 		 */
 
+		if (logger.isDebugEnabled())
+			logger.debug("Extracting InsertObservation parameters from TalsimResult and other constant definitions.");
+
+		if (logger.isDebugEnabled())
+			logger.debug("Current 'header' node contents: {}", headerNode);
+
+		if (logger.isDebugEnabled())
+			logger.debug("Current 'event' node contents: {}", currentTalsimEventNode);
+
 		Map<String, String> talsimInsertObservationParameters = createInsertObservationParametersMap(headerNode,
 				currentTalsimEventNode, timeZone);
+
+		if (logger.isDebugEnabled())
+			logger.debug("Following parameters for InsertObservationRequest were extracted from TalsimResult: '{}'",
+					talsimInsertObservationParameters);
+
+		if (logger.isDebugEnabled())
+			logger.debug(
+					"Replace all placeholders within InsertObservation template with extracted parameters and other constant definitions.");
 
 		String insertObservationRequest = replacePlaceholdersInTemplate(insertObservationTemplate,
 				talsimInsertObservationParameters);
@@ -348,18 +380,32 @@ public class SosRequestConstructor {
 		 */
 		List<Node> eventNodes = extractEventNodesFromSeriesNode(seriesNode);
 
+		if (logger.isInfoEnabled())
+			logger.info("Number of 'event' nodes = Number of InsertObservationRequests for current 'series' node: {}",
+					eventNodes.size());
+
 		/*
 		 * extract all event nodes
 		 */
+
+		int currentIndex = 0;
 
 		for (Node currentTalsimEventNode : eventNodes) {
 
 			String insertObservationTemplate_copy = insertObservationRequestTemplate;
 
+			if (logger.isInfoEnabled())
+				logger.info("Building InsertObservationRequest #{}", currentIndex);
+
 			String insertObservationRequest = SosRequestConstructor.createInsertObservationRequest(
 					currentTalsimEventNode, headerNode, timeZone, insertObservationTemplate_copy);
 
+			if (logger.isDebugEnabled())
+				logger.debug("Following InsertObservationRequest was constructed: {}", insertObservationRequest);
+
 			insertObservationRequests.add(insertObservationRequest);
+
+			currentIndex++;
 		}
 
 		return insertObservationRequests;
@@ -374,6 +420,10 @@ public class SosRequestConstructor {
 		for (Entry<String, String> entry : talsimParameterEntries) {
 			String parameterName = entry.getKey();
 			String parameterValue = entry.getValue();
+
+			if (logger.isDebugEnabled())
+				logger.debug("Replace all occurences of '{}' with value '{}'", parameterName, parameterValue);
+
 			request = request.replaceAll(parameterName, parameterValue);
 		}
 
@@ -692,6 +742,10 @@ public class SosRequestConstructor {
 
 	private static String extractParameterIdFromHeader(Node headerNode) throws Exception {
 
+		if (logger.isDebugEnabled())
+			logger.debug("Extracting value of node '{}' within current 'header' node '{}'",
+					Constants.TALSIM_RESULT_PARAMETER_ID_NODE, headerNode);
+
 		NodeList childNodes = headerNode.getChildNodes();
 		int numberOfChildNodes = childNodes.getLength();
 
@@ -701,15 +755,28 @@ public class SosRequestConstructor {
 
 			if (nodeName.equals(Constants.TALSIM_RESULT_PARAMETER_ID_NODE)) {
 				// return its value
-				return currentNode.getTextContent();
+				String parameterId = currentNode.getTextContent();
+
+				if (logger.isDebugEnabled())
+					logger.debug("Extracted ParameterIdentifier: '{}'", parameterId);
+
+				return parameterId;
 			}
 		}
 
-		throw new Exception("No `parameterId` node could be found within the 'header' section of TALSIM_Document!");
+		if (logger.isErrorEnabled())
+			logger.error(
+					"No 'parameterId' node could be found within the 'header' section of TALSIM_Document! Current 'header' node: {}",
+					headerNode);
+
+		throw new Exception("No 'parameterId' node could be found within the 'header' section of TALSIM_Document!");
 
 	}
 
 	private static Node extractHeaderNodeFromSeriesNode(Node seriesNode) throws Exception {
+		if (logger.isDebugEnabled())
+			logger.debug("Extracting 'header' node from current 'series' node.");
+
 		NodeList childNodes = seriesNode.getChildNodes();
 
 		int numberOfChildNodes = childNodes.getLength();
@@ -719,15 +786,28 @@ public class SosRequestConstructor {
 			String nodeName = currentNode.getNodeName();
 
 			if (nodeName.equals(Constants.TALSIM_HEADER_NODE)) {
+
+				if (logger.isDebugEnabled())
+					logger.debug("Extracted 'header' node: '{}'", currentNode);
+
 				// return its value
 				return currentNode;
 			}
 		}
 
-		throw new Exception("No `header` node could be found within the 'series' section of TALSIM_Document!");
+		if (logger.isErrorEnabled())
+			logger.error(
+					"No 'header' node could be found within the 'series' section of TALSIM_Document! Current 'series' node: {}",
+					seriesNode);
+
+		throw new Exception("No 'header' node could be found within the 'series' section of TALSIM_Document!");
 	}
 
 	private static List<Node> extractEventNodesFromSeriesNode(Node seriesNode) {
+
+		if (logger.isDebugEnabled())
+			logger.debug("Extracting all 'event' node from current 'series' node.");
+
 		List<Node> eventNodes = new ArrayList<Node>();
 
 		NodeList childNodes = seriesNode.getChildNodes();
@@ -748,6 +828,10 @@ public class SosRequestConstructor {
 	}
 
 	private static String extractSingleNodeValueFromHeaderSection(Node headerNode, String tagName) throws Exception {
+
+		if (logger.isDebugEnabled())
+			logger.debug("Extracting value of node named '{}' from current 'header' node '{}'.", tagName, headerNode);
+
 		NodeList childNodes = headerNode.getChildNodes();
 		int numberOfChildNodes = childNodes.getLength();
 
@@ -756,10 +840,21 @@ public class SosRequestConstructor {
 			String nodeName = currentNode.getNodeName();
 
 			if (nodeName.equals(tagName)) {
+
 				// return its value
-				return currentNode.getTextContent();
+				String nodeValue = currentNode.getTextContent();
+
+				if (logger.isDebugEnabled())
+					logger.debug("Extracted '{}' node value: '{}'", tagName, nodeValue);
+
+				return nodeValue;
 			}
 		}
+
+		if (logger.isErrorEnabled())
+			logger.error(
+					"No Node named '{}' could be found within the 'header' section of TALSIM_Document! Current 'header' node: {}",
+					tagName, headerNode);
 
 		throw new Exception(
 				"No Node for '" + tagName + "' could be found within the 'header' section of TALSIM_Document!");
@@ -767,6 +862,12 @@ public class SosRequestConstructor {
 
 	private static String extractSingleAttributeValueFromHeaderSection(Node headerNode, String tagName,
 			String attributeName) throws Exception {
+
+		if (logger.isDebugEnabled())
+			logger.debug(
+					"Extracting value of attribute named '{}' of node named '{}' within current 'header' node '{}'.",
+					tagName, attributeName, headerNode);
+
 		NodeList childNodes = headerNode.getChildNodes();
 		int numberOfChildNodes = childNodes.getLength();
 
@@ -785,11 +886,21 @@ public class SosRequestConstructor {
 					String attributeName_current = currentAttribute.getNodeName();
 					if (attributeName_current.equals(attributeName)) {
 						// return attribute value
-						return currentAttribute.getTextContent();
+						String attributeValue = currentAttribute.getTextContent();
+
+						if (logger.isDebugEnabled())
+							logger.debug("Extracted '{}' attribute value: '{}'", attributeName, attributeValue);
+
+						return attributeValue;
 					}
 				}
 			}
 		}
+
+		if (logger.isErrorEnabled())
+			logger.error(
+					"No Node named '{}' with attribute '{}' could be found within the 'header' section of TALSIM_Document! Current 'header' node: {}",
+					tagName, attributeName, headerNode);
 
 		throw new Exception("No Node '" + tagName + "' with attribute '" + attributeName
 				+ "' could be found within the 'header' section of TALSIM_Document!");
@@ -797,6 +908,11 @@ public class SosRequestConstructor {
 
 	private static String extractSingleAttributeValueFromEventNode(Node talsimEventNode, String attributeName)
 			throws Exception {
+		
+		if (logger.isDebugEnabled())
+			logger.debug(
+					"Extracting value of attribute named '{}' of 'event' node '{}'.",
+					attributeName, talsimEventNode);
 
 		NamedNodeMap attributes = talsimEventNode.getAttributes();
 
@@ -807,12 +923,22 @@ public class SosRequestConstructor {
 			String attributeName_current = currentAttribute.getNodeName();
 			if (attributeName_current.equals(attributeName)) {
 				// return attribute value
-				return currentAttribute.getTextContent();
+				String attributeValue = currentAttribute.getTextContent();
+				
+				if (logger.isDebugEnabled())
+					logger.debug("Extracted '{}' attribute value: '{}'", attributeName, attributeValue);
+				
+				return attributeValue;
 			}
 		}
 
-		throw new Exception("No attribute '" + attributeName
-				+ "' could be found within the 'eventNode' of TALSIM_Document! EventNode: " + talsimEventNode);
+		if (logger.isErrorEnabled())
+			logger.error(
+					"No attribute named '{}' could be found within the 'event' node of TALSIM_Document! Current 'event' node: {}",
+					attributeName, talsimEventNode);
+
+		throw new Exception(
+				"No attribute '" + attributeName + "' could be found within the 'event' node of TALSIM_Document!");
 	}
 
 	private static String extractSingleNodeValueFromDocument(Document talsimDocument, String tagName) {
