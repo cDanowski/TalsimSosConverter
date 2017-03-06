@@ -1,4 +1,4 @@
-package n52.taslim_sos_converter;
+package n52.talsim_sos_converter;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
